@@ -1,0 +1,4 @@
+---
+- name: Mark node schedulable
+  command: kubectl taint nodes --all node-role.kubernetes.io/control-plane- || true
+  when: not ha | default(false)

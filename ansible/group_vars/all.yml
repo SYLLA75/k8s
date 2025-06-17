@@ -1,0 +1,4 @@
+---
+kube_version: "1.29.0"
+cni: "calico"
+pod_cidr: "10.244.0.0/16"

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>{{ 'Edit' if cluster else 'Create' }} Cluster</h1>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">Name</label>
+    <input type="text" class="form-control" name="name" value="{{ cluster['name'] if cluster else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Control Plane IP</label>
+    <input type="text" class="form-control" name="control_plane_ip" value="{{ cluster['control_plane_ip'] if cluster else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Worker IPs (comma separated)</label>
+    <input type="text" class="form-control" name="worker_ips" value="{{ cluster['worker_ips'] if cluster else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">SSH User</label>
+    <input type="text" class="form-control" name="ssh_user" value="{{ cluster['ssh_user'] if cluster else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">SSH Key Path</label>
+    <input type="text" class="form-control" name="ssh_key_path" value="{{ cluster['ssh_key_path'] if cluster else '' }}" required>
+  </div>
+  <p>
+    <a class="btn btn-link" data-bs-toggle="collapse" href="#adv" role="button" aria-expanded="false" aria-controls="adv">Advanced</a>
+  </p>
+  <div class="collapse" id="adv">
+    <div class="card card-body">
+      <div class="mb-3">
+        <label class="form-label">Kubernetes Version</label>
+        <input type="text" class="form-control" name="kube_version" value="{{ cluster['kube_version'] if cluster else '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">CNI</label>
+        <select class="form-select" name="cni">
+          {% for opt in ['calico', 'flannel', 'cilium'] %}
+          <option value="{{ opt }}" {% if cluster and cluster['cni']==opt %}selected{% endif %}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">HA</label>
+        <input type="checkbox" class="form-check-input" name="ha" {% if cluster and cluster['ha'] %}checked{% endif %}>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Pod CIDR</label>
+        <input type="text" class="form-control" name="pod_cidr" value="{{ cluster['pod_cidr'] if cluster else '' }}">
+      </div>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Save</button>
+  <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h1>Clusters</h1>
+  <a href="{{ url_for('create_cluster') }}" class="btn btn-primary">Create Cluster</a>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr><th>Name</th><th>Control Plane</th><th>Workers</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+  {% for c in clusters %}
+    <tr>
+      <td>{{ c['name'] }}</td>
+      <td>{{ c['control_plane_ip'] }}</td>
+      <td>{{ c['worker_ips'] }}</td>
+      <td>
+        <a href="{{ url_for('edit_cluster', cid=c['id']) }}" class="btn btn-sm btn-secondary">Edit</a>
+        <button hx-get="{{ url_for('action', cid=c['id'], op='deploy') }}" hx-trigger="click" hx-target="#log" class="btn btn-sm btn-success">Deploy</button>
+        <button hx-get="{{ url_for('action', cid=c['id'], op='destroy') }}" hx-trigger="click" hx-target="#log" class="btn btn-sm btn-danger">Destroy</button>
+        <button hx-get="{{ url_for('action', cid=c['id'], op='upgrade') }}" hx-trigger="click" hx-target="#log" class="btn btn-sm btn-warning">Upgrade</button>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<pre id="log" class="bg-dark text-light p-3" style="height:200px; overflow:auto"></pre>
+<script>
+  document.body.addEventListener('htmx:beforeOnLoad', function(evt) {
+    if (evt.detail.xhr.status === 200 && evt.detail.xhr.getResponseHeader('content-type') === 'text/event-stream') {
+      const log = document.getElementById('log');
+      const source = new EventSource(evt.detail.pathInfo.finalRequestPath);
+      source.onmessage = function(e) {
+        if(e.data === 'DONE') { source.close(); }
+        else { log.textContent += e.data; log.scrollTop = log.scrollHeight; }
+      }
+      evt.preventDefault();
+    }
+  });
+</script>
+{% endblock %}

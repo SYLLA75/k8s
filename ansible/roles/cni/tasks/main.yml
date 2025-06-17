@@ -1,0 +1,8 @@
+---
+- name: Install CNI plugin
+  when: cni == 'calico'
+  block:
+    - name: Apply Calico manifest
+      command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+      args:
+        chdir: /tmp
