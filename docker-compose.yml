@@ -1,0 +1,14 @@
+version: '3'
+services:
+  ui:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./ansible:/app/ansible
+      - ./database:/app/database
+      - dbdata:/data
+    env_file:
+      - .env
+volumes:
+  dbdata:

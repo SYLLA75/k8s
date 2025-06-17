@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - prereqs
+    - containerd
+    - kubeadm
+    - cni
+    - postinstall

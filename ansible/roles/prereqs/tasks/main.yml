@@ -1,0 +1,25 @@
+---
+- name: Install prerequisites
+  block:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+      when: ansible_os_family == 'Debian'
+    - name: Install packages
+      package:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+      when: ansible_os_family == 'Debian'
+    - name: Install packages
+      package:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
+      when: ansible_os_family == 'RedHat'

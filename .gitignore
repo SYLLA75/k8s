@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+/data/
+ansible/inventory.ini
+ansible/config.yml
