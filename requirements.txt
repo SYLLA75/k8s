@@ -9,6 +9,7 @@ PyYAML>=6.0
 
 # --- Ansible ---
 ansible-core>=2.18.0          # compatible Python 3.12
+ansible>=11.0.0               # full Ansible distribution
 ansible-runner>=2.3.6         # dernière version stable dispo
 ansible-lint>=24.2.0
 flake8>=6.1.0
