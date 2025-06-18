@@ -168,9 +168,11 @@ def run_playbook(playbook: str, cluster: sqlite3.Row):
     inventory_path = ansible_dir / "inventory.ini"
 
     thread, runner = ansible_runner.run_async(
+
         private_data_dir=str(ansible_dir),
         playbook=str(playbook_path),
         inventory=str(inventory_path),
+
         rotate_artifacts=1,
     )
 
