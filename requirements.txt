@@ -1,3 +1,14 @@
+# --- Web UI ---
 Flask==3.0.0
-ansible-runner==2.3.3
-python-dotenv==1.0.0
+flask-httpauth>=4.8.0
+wtforms>=3.1
+pydantic>=2.7
+python-dotenv>=1.0
+asyncssh>=2.14
+PyYAML>=6.0
+
+# --- Ansible ---
+ansible-core>=2.18.0          # compatible Python 3.12
+ansible-runner>=2.3.6         # dernière version stable dispo
+
+

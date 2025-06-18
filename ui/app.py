@@ -135,18 +135,27 @@ def generate_inventory(cluster: sqlite3.Row) -> None:
     Path("ansible/config.yml").write_text(config)
 
 
-def run_playbook(playbook: str, cluster: sqlite3.Row) -> Generator[str, None, None]:
+def run_playbook(playbook: str, cluster: sqlite3.Row):
     generate_inventory(cluster)
-    r = ansible_runner.run_async(
+
+    # thread : objet Thread (inutile ici)
+    # runner : objet Runner, possède .events
+    thread, runner = ansible_runner.run_async(
         private_data_dir="ansible",
-        playbook=playbook,
+        playbook="site.yml",          # ← AU LIEU DE "ansible/site.yml"
         inventory="inventory.ini",
         rotate_artifacts=1,
     )
-    res = r.runner
-    for line in res.stream_output():
-        yield f"data: {line}\n\n"
+
+    # --- boucle tant que le run n'est pas fini
+    for ev in runner.events:              # itère sur la queue d'événements
+        if 'stdout' in ev and ev['stdout']:
+            yield f"data: {ev['stdout']}\n\n"
+        if ev.get('event') == 'playbook_on_stats':
+            break                         # fin du playbook
+
     yield "data: DONE\n\n"
+
 
 
 @app.route("/action/<int:cid>/<op>")
