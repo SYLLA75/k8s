@@ -2,12 +2,12 @@
 - name: Install Kubernetes packages
   block:
     - name: Add apt repository
-      apt_repository:
+      ansible.builtin.apt_repository:
         repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
         state: present
       when: ansible_os_family == 'Debian'
     - name: Add yum repository
-      yum_repository:
+      ansible.builtin.yum_repository:
         name: kubernetes
         description: Kubernetes
         baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
@@ -17,7 +17,7 @@
         gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg
       when: ansible_os_family == 'RedHat'
     - name: Install packages
-      package:
+      ansible.builtin.package:
         name:
           - kubeadm-{{ kube_version }}*
           - kubelet-{{ kube_version }}*

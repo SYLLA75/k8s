@@ -1,21 +1,23 @@
 ---
-- hosts: all
+- name: Cleanup cluster
+  hosts: all
   become: true
   tasks:
     - name: Reset kubeadm
-      command: kubeadm reset -f
+      ansible.builtin.command: kubeadm reset -f
+      changed_when: false
     - name: Remove kubernetes packages
-      package:
+      ansible.builtin.package:
         name:
           - kubeadm
           - kubelet
           - kubectl
         state: absent
     - name: Remove containerd packages
-      package:
+      ansible.builtin.package:
         name: containerd
         state: absent
     - name: Clean CNI
-      file:
+      ansible.builtin.file:
         path: /etc/cni
         state: absent

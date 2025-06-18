@@ -3,6 +3,7 @@
   when: cni == 'calico'
   block:
     - name: Apply Calico manifest
-      command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+      ansible.builtin.command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
       args:
         chdir: /tmp
+      changed_when: false

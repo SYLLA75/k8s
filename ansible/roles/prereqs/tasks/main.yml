@@ -2,11 +2,11 @@
 - name: Install prerequisites
   block:
     - name: Update apt cache
-      apt:
+      ansible.builtin.apt:
         update_cache: true
       when: ansible_os_family == 'Debian'
     - name: Install packages
-      package:
+      ansible.builtin.package:
         name:
           - apt-transport-https
           - ca-certificates
@@ -16,7 +16,7 @@
         state: present
       when: ansible_os_family == 'Debian'
     - name: Install packages
-      package:
+      ansible.builtin.package:
         name:
           - yum-utils
           - device-mapper-persistent-data
