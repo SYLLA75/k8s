@@ -19,6 +19,7 @@ les playbooks Ansible puissent se connecter aux hôtes.
 - `make up` lance l'application en arriere-plan.
 - `make down` arrete les conteneurs.
 - `make lint` execute ansible-lint et flake8.
+  Les deux outils sont listés dans `requirements.txt`.
 
 ## CLI (optionnel)
 Il est possible d'executer les playbooks manuellement avec `ansible-playbook` dans le repertoire `ansible/`.

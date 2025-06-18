@@ -41,7 +41,9 @@ users = {
 
 @auth.verify_password
 def verify_password(username: str, password: str) -> bool:
-    if username in users and check_password_hash(users.get(username, ""), password):
+    """Validate a username/password pair."""
+    stored = users.get(username, "")
+    if username in users and check_password_hash(stored, password):
         return True
     return False
 
@@ -108,31 +110,52 @@ def save_cluster(form: dict, cid: int | None = None) -> None:
     with closing(get_db()) as db:
         if cid:
             db.execute(
-                """
-                UPDATE clusters SET name=?, control_plane_ip=?, worker_ips=?, ssh_user=?,
-                ssh_key_path=?, kube_version=?, cni=?, ha=?, pod_cidr=? WHERE id=?
-                """,
+                (
+                    "UPDATE clusters SET name=?, control_plane_ip=?, "
+                    "worker_ips=?, ssh_user=?, "
+                    "ssh_key_path=?, kube_version=?, cni=?, ha=?, pod_cidr=? "
+                    "WHERE id=?"
+                ),
                 (*fields, cid),
             )
         else:
             db.execute(
-                """
-                INSERT INTO clusters (name, control_plane_ip, worker_ips, ssh_user,
-                ssh_key_path, kube_version, cni, ha, pod_cidr)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
+                (
+                    "INSERT INTO clusters (name, control_plane_ip, "
+                    "worker_ips, ssh_user, ssh_key_path, "
+                    "kube_version, cni, ha, pod_cidr) VALUES "
+                    "(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                ),
                 fields,
             )
         db.commit()
 
 
 def generate_inventory(cluster: sqlite3.Row) -> None:
-    inventory = f"""[control-plane]\n{cluster['control_plane_ip']} ansible_user={cluster['ssh_user']} ansible_ssh_private_key_file={cluster['ssh_key_path']}\n\n[workers]\n"""
+    ansible_dir = Path("ansible")
+    inv_path = ansible_dir / "inventory.ini"
+
+    inventory = (
+        "[control-plane]\n"
+        f"{cluster['control_plane_ip']} ansible_user={cluster['ssh_user']} "
+        f"ansible_ssh_private_key_file={cluster['ssh_key_path']}\n\n"
+        "[workers]\n"
+    )
     for ip in cluster["worker_ips"].split(','):
-        inventory += f"{ip} ansible_user={cluster['ssh_user']} ansible_ssh_private_key_file={cluster['ssh_key_path']}\n"
-    Path("ansible/inventory.ini").write_text(inventory)
-    config = f"---\nprivilege_escalation:\n  become: true\nrunner_mode: 'subprocess'\n"
-    Path("ansible/config.yml").write_text(config)
+        inventory += (
+            f"{ip} ansible_user={cluster['ssh_user']} "
+            f"ansible_ssh_private_key_file={cluster['ssh_key_path']}\n"
+        )
+    inv_path.write_text(inventory)
+
+    config_path = ansible_dir / "config.yml"
+    config = (
+        "---\n"
+        "privilege_escalation:\n"
+        "  become: true\n"
+        "runner_mode: 'subprocess'\n"
+    )
+    config_path.write_text(config)
 
 
 def run_playbook(playbook: str, cluster: sqlite3.Row):
@@ -140,10 +163,20 @@ def run_playbook(playbook: str, cluster: sqlite3.Row):
 
     # thread : objet Thread (inutile ici)
     # runner : objet Runner, possède .events
+    ansible_dir = Path("ansible")
+    playbook_path = ansible_dir / playbook
+    inventory_path = ansible_dir / "inventory.ini"
+
     thread, runner = ansible_runner.run_async(
+<<<<<<< pwizj6-codex/corriger-les-erreurs-dans-le-code
+        private_data_dir=str(ansible_dir),
+        playbook=str(playbook_path),
+        inventory=str(inventory_path),
+=======
         private_data_dir="ansible",
         playbook=playbook,
         inventory="inventory.ini",
+>>>>>>> main
         rotate_artifacts=1,
     )
 
@@ -155,7 +188,6 @@ def run_playbook(playbook: str, cluster: sqlite3.Row):
             break                         # fin du playbook
 
     yield "data: DONE\n\n"
-
 
 
 @app.route("/action/<int:cid>/<op>")
@@ -175,7 +207,10 @@ def action(cid: int, op: str) -> Response:
     def generate() -> Generator[str, None, None]:
         for out in run_playbook(playbook, cluster):
             yield out
-    return Response(stream_with_context(generate()), mimetype="text/event-stream")
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+    )
 
 
 if __name__ == "__main__":
