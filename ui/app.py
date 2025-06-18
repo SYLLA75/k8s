@@ -142,7 +142,7 @@ def run_playbook(playbook: str, cluster: sqlite3.Row):
     # runner : objet Runner, possède .events
     thread, runner = ansible_runner.run_async(
         private_data_dir="ansible",
-        playbook="site.yml",          # ← AU LIEU DE "ansible/site.yml"
+        playbook=playbook,
         inventory="inventory.ini",
         rotate_artifacts=1,
     )
