@@ -1,21 +1,26 @@
 ---
-- hosts: all
+- name: Upgrade cluster
+  hosts: all
   become: true
   tasks:
     - name: Upgrade kubeadm
-      apt:
+      ansible.builtin.apt:
         name: kubeadm={{ kube_version }}-00
         state: present
       when: ansible_os_family == 'Debian'
-    - name: Upgrade kubeadm
-      yum:
+    - name: Upgrade kubeadm (yum)
+      ansible.builtin.dnf:
         name: kubeadm-{{ kube_version }}
         state: present
       when: ansible_os_family == 'RedHat'
     - name: Drain node
-      command: kubeadm drain {{ inventory_hostname }} --ignore-daemonsets --delete-emptydir-data
-      ignore_errors: yes
+      ansible.builtin.command: >-
+        kubeadm drain {{ inventory_hostname }} --ignore-daemonsets --delete-emptydir-data
+      failed_when: false
+      changed_when: false
     - name: Upgrade node
-      command: kubeadm upgrade node
+      ansible.builtin.command: kubeadm upgrade node
+      changed_when: false
     - name: Uncordon node
-      command: kubeadm uncordon {{ inventory_hostname }}
+      ansible.builtin.command: kubeadm uncordon {{ inventory_hostname }}
+      changed_when: false

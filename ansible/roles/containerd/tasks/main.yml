@@ -2,11 +2,11 @@
 - name: Install containerd
   block:
     - name: Install containerd package
-      package:
+      ansible.builtin.package:
         name: containerd
         state: present
     - name: Enable and start containerd
-      service:
+      ansible.builtin.service:
         name: containerd
         enabled: true
         state: started

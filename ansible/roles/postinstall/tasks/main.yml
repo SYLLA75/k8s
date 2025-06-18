@@ -1,4 +1,5 @@
 ---
 - name: Mark node schedulable
-  command: kubectl taint nodes --all node-role.kubernetes.io/control-plane- || true
+  ansible.builtin.command: kubectl taint nodes --all node-role.kubernetes.io/control-plane- || true
+  changed_when: false
   when: not ha | default(false)
